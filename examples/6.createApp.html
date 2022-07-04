@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+<script src="../node_modules/@vue/runtime-dom/dist/runtime-dom.global.js"></script>
+<script>
+    // 组件渲染流程  将组件渲染成vnode -> 再将vnode变成真实的dom -> 插入到页面上
+    // render方法的作用可以渲染一个虚拟节点，将其挂载到具体的dom元素上
+
+    /*
+        组件创建的过程中
+            创造一个instance -> 初始化
+            根据用户传入的组件  拿到对应的内容 来填充这个instance对象
+            创建effect 并且调用render方法，数据会将对应的effect收集起来
+            拿到render方法返回的结果 再次走渲染流程  -> patch
+
+
+        组件渲染的顺序是 先父后子，执行顺序是深度优先
+
+        每个组件都是一个effect函数
+    
+    */
+
+    // console.log(VueRuntimeDOM);
+    let { createApp, h, reactive, ref } = VueRuntimeDOM
+    // let state=reactive({
+    //     name:'li',
+    //     age:18
+    // })
+
+    //#region 更新之前的App流程
+    // let App = { // App是一个组件，是<App></App> ,渲染的内容的是render返回的结果，是一个subTree div -> li .vue文件也会转换为一个虚拟节点
+    //     props: [],
+    //     setup(props, context) {
+    //         console.log('setup');
+    //         let state = reactive({
+    //             name: 'li',
+    //             age: 18
+    //         })
+    //         // return (proxy)=>{
+    //         //     console.log('setup-render');
+    //         // }
+    //         let fn = function () {
+    //             state.name = '李'
+    //             state.name = '李李'
+    //             state.name = '李李李'
+    //             state.age=20
+    //             state.age=30
+    //             // state.name = 'li'
+    //         }
+
+    //         // return {
+    //         //     a: 1, b: 2
+    //         // }
+
+    //         return (proxy) => {
+    //             // console.log(proxy.a, proxy.name, proxy.age);
+    //             // console.log('render');
+    //             // return h('div', { style: { color: 'red' }, onClick: fn }, ['aaa', 'bbb'])
+    //             return h('div', { style: { color: 'red' }, onClick: fn }, [state.name,state.age])
+    //         }
+    //     }
+
+
+    // }
+    // #endregion
+
+    let App = {
+        setup(props, context) {
+            let flag = ref(true)
+            setTimeout(() => {
+                flag.value = false
+            }, 3000);
+            return () => {
+                return flag.value ?
+                    // h('div', { style: { color: 'red' } }, 'li') : h('div', { style: { color: 'blue' } }, '李')
+                    // h('div', { style: { color: 'red' } }, 'li') : h('p', { style: { color: 'blue' } }, '李')
+                    // h('div', { style: { color: 'red' } }, ['li','hj']) : h('div', { style: { color: 'blue' } }, '李')
+                    // h('div', { style: { color: 'red' } }, ['li','hj']) : h('div', { style: { color: 'blue' } }, ['李','s'])
+                        // h('div',{ style: { color: 'red' } },[h('span','hello'),h('span','hello')]):h('div',{ style: { color: 'red' } },h('span','hello'))
+
+                    // diff
+                    h('div', { style: { color: 'red' } }, [
+                        h('li', { key: 'a' }, 'a'),
+                        h('li', { key: 'b' }, 'b'),
+                        h('li', { key: 'c', style: { color: 'red' } }, 'c'),
+                        h('li', { key: 'd' }, 'd'),
+                        h('li', { key: 'e' }, 'e'),
+                        // h('li', { key: 'q' }, 'q'),
+                        h('li', { key: 'f' }, 'f'),
+                        h('li', { key: 'g' }, 'g')
+                    ]) :
+                    h('div', { style: { color: 'red' } }, [
+                        h('li', { key: 'a' }, 'a'),
+                        h('li', { key: 'b' }, 'b'),
+                        h('li', { key: 'e' }, 'e'),
+                        h('li', { key: 'c', style: { color: 'yellow' } }, 'c'),
+                        h('li', { key: 'd' }, 'd'),
+                        h('li', { key: 'h' }, 'h'),
+                        h('li', { key: 'f' }, 'f'),
+                        h('li', { key: 'g' }, 'g'),
+                    ])
+            }
+        }
+    }
+
+    // let App = {
+    //     setup() {
+    //         return () => {
+    //             return h('div', { style: { color: 'red' } }, ['li', 'hj'])
+    //         }
+    //     }
+    // }
+
+    createApp(App, { name: 'li', age: 18 }).mount('#app')
+</script>
+
+</html>

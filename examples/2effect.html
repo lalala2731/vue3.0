@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>effect中的所有属性都会收集effect  --> track</h2>
+    <h2>，当属性发生变化的时候，会重新执行effect  --> trigger</h2>
+    <div id="app"></div>
+</body>
+<!-- <script src="../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
+<script src="../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
+<script>
+
+
+    // console.log(VueReactivity);
+    // let {reactive,shallowReactive,readonly,shallowReadonly}=VueReactivity
+    // let state=reactive({name:'lzm',age:{real:18}})
+    // state.age.real=100
+    // console.log(state.age);
+    let { reactive,effect } = VueReactivity
+    // console.log(reactive({name:'a'}));
+
+
+    const data = { foo: 1 }
+    const obj = reactive(data)
+    // console.log(obj);
+
+    // effect(()=>{
+    //     console.log(obj.foo);
+    // },{
+    //     scheduler(fn){
+    //         setTimeout(fn,0);
+    //     }
+    // })
+
+    const jobQueue = new Set()
+    const p = Promise.resolve()
+    let isFlush = false
+    function flushJob() {
+        if (isFlush) return
+        isFlush = true
+        p.then(() => {
+            jobQueue.forEach(job => job())
+        }).finally(() => {
+            isFlush = false
+        })
+    }
+
+
+    effect(() => {
+        console.log(obj.foo);
+    }, {
+        scheduler(fn) {
+            console.log(fn);
+            jobQueue.add(fn)
+            flushJob()
+        },
+        lazy:true
+    })
+
+debugger
+    // effect(()=>{
+    //     console.log(obj.foo);
+    // })
+
+    obj.foo++
+    obj.foo++
+    // console.log('end');
+
+
+
+    // const state = reactive({
+    //     name: 'lzm',
+    //     age: {
+    //         p: 18
+    //     },
+    //     arr:[1,2,3],
+    //     gender:'tt',
+    //     f:{
+    //         a:1
+    //     }
+    // })
+    // let { effect } = VueReactivity
+    // effect(() => {
+    //     // app.innerHTML = state.name + '---' + state.age.p+'---'+state.arr[2]+'--'+state.arr.length+'---'+state.gender
+    //     // app.innerHTML = state.name + '---' + state.age.p+state.arr
+    //     app.innerHTML = state.arr// effect 中使用state，实际会访问 valueOf toString join length 0 1 2 
+    // })
+    // setTimeout(() => {
+    //     // state.age.p = 19
+    //     // state.age.o = 19
+    //     // state.arr.push(4)
+    //     // state.arr[2]=4// state.arr.2=4
+    //     // state.arr.length=8
+    //     // state.arr[4]=6
+    //     // state.arr[2]=0
+
+    //     // state.age.p=999
+    //     // state.arr.length=1
+    //     // state.name='dss'
+    //     // state.gender='d'
+    //     // state.arr[4]=0
+    //     state.arr.length=2 // 所以虽然没有收集过索引100的依赖，但是可以通过触发收集的length的依赖实现页面的更新
+    //     // state.arr[100]=1
+    // }, 3000)
+
+    const state = reactive({ name: 'zf', age: 11 ,arr:[1,2]})
+    // // debugger
+    // effect(() => {
+    //     console.log('render');
+    //     if (state.name === 'zf') {
+    //         console.log(state.age);
+    //     }
+    // })
+    // state.age = 100
+    // state.name = 'jw'
+    // state.age = 200
+    effect(()=>{
+        app.innerText=state.arr+'dfhgjkk'
+    })
+    // setTimeout(()=>{
+    //     state.arr.length=10
+    // },1000)
+</script>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script src="../node_modules/@vue/reactivity/dist/reactivity.global.js"></script>
+<script>
+    let { computed, ref, effect, reactive } = VueReactivity
+
+    let age = ref(10)
+    let myAge = computed(() => {
+        return age.value + 10
+    })
+
+    // console.log(myAge.value);
+
+    // age.value=18
+    // console.log(myAge.value);
+
+    effect(() => { //此时effect中没有age，但是也应该重新执行
+        debugger
+        console.log(myAge.value)
+    })
+    age.value = 18
+
+    /*
+    自动触发流程：
+    age是一个经过响应式包裹的变量，computed会生成一个effect函数，在这里面触发了age的get就会将age与effect函数收集
+    computed一开始时_dirty不执行，当访问myAge.value时，就会触发computed的get，computed的effect函数就会执行，计算，同时修改_dirty
+    当修改age.value的时候，会触发相应的get，使age相应的effect执行，里面的effect由于computed给他加上了scheduler，就会执行，将_dirty修改
+    再次访问的时候就会进入if，重新执行computed的effect，计算。
+    */
+
+    /*
+    情景1：
+    computed的get会收集依赖，在scheduler调度其中执行收集的依赖
+    computed和age的effect函数是同一个
+    所以age的effect执行，scheduler就会触发计算属性收集的effect
+    effect(()=>{ //此时effect中没有age，但是也应该重新执行
+        console.log(myAge.value)
+    })
+    age.value=18
+    */
+</script>
+
+</html>
