@@ -78,7 +78,7 @@ export function track(target, type, key) {// type:TrackOpTypes.GET --> 0
     if (!dep.has(activeEffect)) {// 往里面加effect函数
         dep.add(activeEffect)
     }
-// console.log(target,key,targetMap);
+    // console.log(target,key,targetMap);
 
 
 
@@ -86,7 +86,7 @@ export function track(target, type, key) {// type:TrackOpTypes.GET --> 0
 // 找属性对应的effect，让其执行（只考虑了数组和对象，还有Map和Set）
 export function trigger(target, type, key?, newValue?, oldValue?) {// ?表示可有可无
     // console.log(target, type, key, newValue, oldValue);
-    
+
     // 如果这个属性没有收集过effect，那不需要做任何操作
     // 因为如果没有effect，说明在页面的effect函数中没有用到过这个属性
     const depsMap = targetMap.get(target)
@@ -130,7 +130,7 @@ export function trigger(target, type, key?, newValue?, oldValue?) {// ?表示可
 
         // 可能是对象(或者是改数组的某个索引的值)
         if (key !== undefined) {// 这里一定是修改(页面用到才会收集依赖,而在set方法中已经set过了)
-            
+
             add(depsMap.get(key))// 如果是新增，就是空的丢进去，因为页面没有用到，不需要再触发
             // 如果页面用到了arr，但是后面如果修改了arr的某一项（未改变数组长度），也会走这里
             // 因为track的时候会收集每一项
@@ -142,7 +142,7 @@ export function trigger(target, type, key?, newValue?, oldValue?) {// ?表示可
                 if (isArray(target) && isIntegerKey(key)) {
                     add(depsMap.get('length'))// 因为页面effect即使是arr,也会记录arr.length的effect，所以就吧'length'丢进去触发
                     // console.log(target,key,type,newValue,oldValue);
-                    
+
                 }
         }
     }
@@ -174,7 +174,7 @@ export function trigger(target, type, key?, newValue?, oldValue?) {// ?表示可
 情况二：
  effect(()=>{
     state.xx ++ // 出现死循环 effect先执行一次读取到state.xx,收集依赖，state.xx ++,set函数触发依赖，effect再执行，
-                // fn执行，再读状态，收集依赖，状态再次改变 --->死循环
+                // fn执行，再读状态，收集依赖，状态再次改变 --->死循环 (无限的调用自己，解决：当前执行的effect与trigger触发执行的effect不相同才执行)
  })
 
  */

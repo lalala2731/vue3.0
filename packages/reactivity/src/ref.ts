@@ -20,7 +20,7 @@ const convert = val => isObject(val) ? reactive(val) : val
 // beta版本之前的版本ref就是个对象，由于对象不方便扩展，改成了类
 class RefImpl {
     public _value //表示声明了一个_value属性，并未赋值
-    public readonly __v_isRef = true//产生的实例会被添加 __v_isRef 表示是一个ref属性
+    public readonly __v_isRef = true//产生的实例会被添加 __v_isRef 表示是一个ref属性用于脱ref
     constructor(public rawValue, public shallow) { // 参数前面增加修饰符，标识此属性放到了实例上，既声明又赋值
         // 如果是深度的，需要把里面的都变成响应式的
         this._value = shallow ? rawValue : convert(rawValue)

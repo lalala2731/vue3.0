@@ -20,7 +20,7 @@ function createGetter(isReadyonly = false, shallow = false) {
         // Reflect方法具备返回值
         // Reflect 使用可以不使用proxy es6语法
 
-        const res = Reflect.get(target, key, receiver)//等价于target[key]
+        const res = Reflect.get(target, key, receiver)//等价于target[key]// 防止继承于原型链effect被触发两次
 
         if(isSymbol(key)) return res
 
